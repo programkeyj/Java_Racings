@@ -115,7 +115,6 @@ public class Player {
         }
         if (key == KeyEvent.VK_L){
             LightI++;
-            System.out.println(LightI);
             if (LightI == 1) {
                 Light = true;
                 img = img_c_l;

@@ -1,152 +1,164 @@
 package com.keyj;
 
-import java.awt.*;
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.ImageObserver;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import javax.swing.ImageIcon;
-
-
-import static com.keyj.Player.MAX_BOTTOM;
-import static com.keyj.Player.MAX_TOP;
 
 public class Road extends JPanel implements ActionListener, Runnable {
-
     Timer mainTimer = new Timer(20, this);
-
     public double nightInt;
     public boolean night = false;
     static int EnemyCar = 0;
-    Image nightRoad = new ImageIcon("rec/NightRoad").getImage();
-    Image img;// = new ImageIcon("rec/NightRoad.png").getImage();
+    Image Road = new ImageIcon("rec/Road.png").getImage();
+    Image nightRoad = new ImageIcon("rec/NightRoad.jpg").getImage();
+    Image img;
     Image speed = new ImageIcon("rec/speedometr.png").getImage();
     Player p = new Player();
     Thread enemiseFactory = new Thread(this);
-    List<Enemy> enemies = new ArrayList<Enemy>();
+    List<Enemy> enemies = new ArrayList();
 
-
-    public Road(){
-        mainTimer.start();
-        enemiseFactory.start();
-        addKeyListener(new myKeyAdapter());
-        setFocusable(true);
+    public Road() {
+        this.mainTimer.start();
+        this.enemiseFactory.start();
+        this.addKeyListener(new Road.myKeyAdapter());
+        this.setFocusable(true);
     }
-    private class myKeyAdapter extends KeyAdapter{
-        public void keyPressed(KeyEvent e){
-              p.keyPressed(e);
-        }
-        public void keyReleased(KeyEvent e){
-              p.keyReleased(e);
-        }
-    }
-    public void paint(Graphics g){
 
-        g = (Graphics2D) g;
-        if (nightInt >= 20.0 * 2){
-            night = false;
-            nightInt = 0.0;
+    public void paint(Graphics g) {
+        g = (Graphics2D)g;
+        if (this.nightInt >= 20.0*2) {
+            this.night = false;
+            this.nightInt = 0.0;
         }
-        if (nightInt >= 20.0) {
-            night = true;
-        }
-        nightInt += 0.02;
 
-        if (night == true) {
-            img = new ImageIcon("rec/NightRoad.png").getImage();
+        if (this.nightInt >= 20.0) {
+            this.night = true;
         }
-        else {
-            img = new ImageIcon("rec/Road.png").getImage();
+
+        this.nightInt += 0.02;
+        if (night) {
+            img = Road;
+        } else {
+            img = nightRoad;
         }
-        g.drawImage(img, p.layer1, 0, null);
-        g.drawImage(img, p.layer2, 0, null);
-        g.drawImage(p.img, p.x, p.y, null);
-        g.drawImage(speed, 80, 284, null);
-        double V = (300 / Player.MAX_V) * p.v;
+
+        g.drawImage(img, p.layer1, 0, (ImageObserver)null);
+        g.drawImage(img, this.p.layer2, 0, (ImageObserver)null);
+        g.drawImage(p.img, p.x, p.y, (ImageObserver)null);
+        g.drawImage(this.speed, 80, 284, (ImageObserver)null);
+        double V = (double)(300 / Player.MAX_V * this.p.v);
         g.setColor(Color.GREEN);
-        Font font = new Font("Arial", Font.BOLD, 35);
+        Font font = new Font("Arial", 1, 35);
         g.setFont(font);
-        g.drawString("скорость:  "+ V +"км/ч", 100, 332);
-        if (Player.nitro == true){
-            Font fnitro = new Font("Arial", Font.ITALIC, 20);
+        g.drawString("скорость:  " + V + "км/ч", 100, 332);
+        if (p.Light == true){
+            Font fnitro = new Font("Arial", 2, 20);
+            g.setFont(fnitro);
+            g.setColor(Color.orange);
+            g.drawString("LIGHT ON", 300, 355);
+        }
+        if (Player.nitro) {
+            Font fnitro = new Font("Arial", 2, 20);
             g.setFont(fnitro);
             g.setColor(Color.CYAN);
             int procent = 1;
-            if (p.Knitro == 5){
+            if (this.p.Knitro == 5) {
                 procent = 100;
-            }
-            else if (p.Knitro == 4){
+            } else if (this.p.Knitro == 4) {
                 procent = 80;
-            }
-            else if (p.Knitro == 3){
+            } else if (this.p.Knitro == 3) {
                 procent = 60;
-            }
-            else if (p.Knitro == 2){
+            } else if (this.p.Knitro == 2) {
                 procent = 30;
-            }
-            else if (p.Knitro == 1){
+            } else if (this.p.Knitro == 1) {
                 procent = 10;
             }
-            g.drawString("NITRO TRUE "+procent+"%", 180, 355);
+
+            g.drawString("NITRO TRUE " + procent + "%", 120, 355);
         }
-        Iterator<Enemy> i = enemies.iterator();
-        while(i.hasNext()){
-              Enemy e = i.next();
-              if (e.x >= 2400 || e.x <= -2400){
-                  i.remove();
-              }else {
-                  e.move();
-                  g.drawImage(e.img, e.x, e.y, null);
-              }
+
+        Iterator i = this.enemies.iterator();
+
+        while(true) {
+            while(i.hasNext()) {
+                Enemy e = (Enemy)i.next();
+                if (e.x < 2500 && e.x > -2250) {
+                    e.move();
+                    g.drawImage(e.img, e.x, e.y, (ImageObserver)null);
+                } else {
+                    i.remove();
+                }
+            }
+
+            return;
         }
     }
-    public void actionPerformed(ActionEvent e){
-         p.move();
 
-         repaint();
-         testColisionWithEnemy();
-
-
-
+    public void actionPerformed(ActionEvent e) {
+        this.p.move();
+        this.repaint();
+        this.testColisionWithEnemy();
     }
-    public void testColisionWithEnemy(){
-        Iterator<Enemy> i = enemies.iterator();
-        while (i.hasNext()){
-            Enemy e = i.next();
-            if (p.getRect().intersects(e.getRect())){
-                e.img = new ImageIcon("rec/Boom.png").getImage();
+
+    public void testColisionWithEnemy() {
+        Iterator i = this.enemies.iterator();
+
+        while(i.hasNext()) {
+            Enemy e = (Enemy)i.next();
+            if (this.p.getRect().intersects(e.getRect())) {
+                e.img = (new ImageIcon("rec/Boom.png")).getImage();
                 StartSound gaz = new StartSound();
                 gaz.file = new File("rec/boom.wav");
                 gaz.start();
-
             }
         }
+
     }
-    @Override
-    public void run(){
-        while(true){
+
+    public void run() {
+        while(true) {
             Random rand = new Random();
+
             try {
-                Thread.sleep(rand.nextInt(2000));
-                int y = MAX_TOP + rand.nextInt(MAX_BOTTOM - MAX_TOP);
+                Thread.sleep((long)rand.nextInt(2000));
+                int y = 340 + rand.nextInt(121);
                 EnemyCar++;
-                if (EnemyCar == 4){EnemyCar = 0;}
-                enemies.add(new Enemy(1300,
-                                      y,
-                                      rand.nextInt(41),
-                                      EnemyCar,
-                                      this));
-            }catch (InterruptedException e){
-                e.printStackTrace();
+                if (EnemyCar == 4) {
+                    EnemyCar = 0;
+                }
+
+                this.enemies.add(new Enemy(1300, y, rand.nextInt(41), EnemyCar, this));
+            } catch (InterruptedException var3) {
+                var3.printStackTrace();
             }
         }
     }
 
+    private class myKeyAdapter extends KeyAdapter {
+        private myKeyAdapter() {
+        }
+
+        public void keyPressed(KeyEvent e) {
+            Road.this.p.keyPressed(e);
+        }
+
+        public void keyReleased(KeyEvent e) {
+            Road.this.p.keyReleased(e);
+        }
+    }
 }
